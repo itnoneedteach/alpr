@@ -1,0 +1,17 @@
+FROM nvidia/cuda:10.0-cudnn7-devel-ubuntu18.04
+
+# install tools
+RUN apt-get update \
+  && apt-get install -y libtbb2 libtbb-dev libavcodec57 libavformat57 libavutil55 libcairo2 libgdk-pixbuf2.0-0 libglib2.0-0 libgstreamer-plugins-base1.0-0 libgstreamer1.0-0 libgtk2.0-0 libjpeg8 libpng16-16 libswscale4 libtiff5 python python-pip pkg-config
+
+COPY . /data
+
+WORKDIR /data
+
+RUN dpkg -i libopencv_3.3.1-2-gb3f86dcd5_amd64.deb libopencv-dev_3.3.1-2-gb3f86dcd5_amd64.deb libopencv-python_3.3.1-2-gb3f86dcd5_amd64.deb
+
+RUN cd /data/darknet && make -j 4
+
+RUN python -m pip install --user numpy scipy matplotlib ipython jupyter pandas sympy nose keras tensorflow
+
+CMD bash run.sh -i samples/test -o /tmp/output -c /tmp/output/results.csv
